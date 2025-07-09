@@ -6,10 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #settings for the plots
-methods_dict={'MatrixProfile': 'STOMP', 'PanMatrixProfile':'PanMP', 'LatentMotif':'LatentMotif','MDL':'MDL-Clust','Motiflets':'Motiflets','BasePersistentPattern':'PEPA','Valmod':'Valmod','Baseline':'SetFinder','AdaptativeBasePersistentPattern':'A-PEPA','Grammarviz':'Grammarviz','LocoMotif':'LoCoMotif'}
-color_palette={'MatrixProfile':'darkviolet','PanMatrixProfile':'mediumorchid','LocoMotif':'lightskyblue','LatentMotif':'darkorange','MDL':'cornflowerblue','Motiflets':'crimson','BasePersistentPattern':'deeppink','Valmod':'violet','Baseline':'orange','AdaptativeBasePersistentPattern':'hotpink','Grammarviz':'royalblue'}
-marker_dict={'MatrixProfile':'H','PanMatrixProfile':'h','LocoMotif':'D','LatentMotif':'P','MDL':'^','Motiflets':'x','BasePersistentPattern':'s','Valmod':'p','Baseline':'+','AdaptativeBasePersistentPattern':'s','Grammarviz':'v'}
-size_dict={'MatrixProfile':10,'PanMatrixProfile':10,'LocoMotif':10,'LatentMotif':17,'MDL':10,'Motiflets':20,'BasePersistentPattern':10,'Valmod':10,'Baseline':23,'AdaptativeBasePersistentPattern':10,'Grammarviz':10}
+methods_dict={'MatrixProfile': 'STOMP', 'PanMatrixProfile':'PanMP', 'LatentMotif':'LatentMotif','MDL':'MDL-Clust','Motiflets':'Motiflets','Motiflets_numba': 'Motiflets','BasePersistentPattern':'PEPA','Valmod':'Valmod','Baseline':'SetFinder','AdaptativeBasePersistentPattern':'A-PEPA','Grammarviz':'Grammarviz','LocoMotif':'LoCoMotif'}
+color_palette={'MatrixProfile':'darkviolet','PanMatrixProfile':'mediumorchid','LocoMotif':'lightskyblue','LatentMotif':'darkorange','MDL':'cornflowerblue','Motiflets':'crimson','BasePersistentPattern':'deeppink','Valmod':'violet','Baseline':'orange','AdaptativeBasePersistentPattern':'hotpink','Grammarviz':'royalblue','Motiflets_numba':'crimson'}
+marker_dict={'MatrixProfile':'H','PanMatrixProfile':'h','LocoMotif':'D','LatentMotif':'P','MDL':'^','Motiflets':'x','BasePersistentPattern':'s','Valmod':'p','Baseline':'+','AdaptativeBasePersistentPattern':'s','Grammarviz':'v' , 'Motiflets_numba':'x'}
+size_dict={'MatrixProfile':10,'PanMatrixProfile':10,'LocoMotif':10,'LatentMotif':17,'MDL':10,'Motiflets':20,'BasePersistentPattern':10,'Valmod':10,'Baseline':23,'AdaptativeBasePersistentPattern':10,'Grammarviz':10, 'Motiflets_numba':20}
 metrics_dict={'es_fscore_0.5_mean' : 'Accuracy (fscore) average','es_fscore_0.5_std' : 'Accuracy (fscore) standard deviation ','es_precision_0.5_mean' : 'Accuracy (precision) average','es_precision_0.5_std' : 'Accuracy (precision) standard deviation','es_recall_0.5_mean' : 'Accuracy (recall) average','es_recall_0.5_std' : 'Accuracy (recall) standard deviation',  'execution_time_mean':'execution time average ','execution_time_std':'execution time standard deviation',
               'es_fscore_0.25_mean' : 'Accuracy (fscore) average','es_fscore_0.25_std' : 'Accuracy (fscore) standard deviation ','es_precision_0.25_mean' : 'Accuracy (precision) average','es_precision_0.25_std' : 'Accuracy (precision) standard deviation','es_recall_0.25_mean' : 'Accuracy (recall) average','es_recall_0.25_std' : 'Accuracy (recall) standard deviation',
               'es_fscore_0.75_mean' : 'Accuracy (fscore) average','es_fscore_0.75_std' : 'Accuracy (fscore) standard deviation ','es_precision_0.75_mean' : 'Accuracy (precision) average','es_precision_0.75_std' : 'Accuracy (precision) standard deviation','es_recall_0.75_mean' : 'Accuracy (recall) average','es_recall_0.75_std' : 'Accuracy (recall) standard deviation'}
@@ -178,14 +178,14 @@ def plot_results_2d(results_dict, param_list, labels,  metric):
     plt.show()
 
 
-def build_exec_time_csv(general_path,dataset_list,algos_list):
+def build_exec_time_csv(general_path,write_results_path,dataset_list,algos_list):
     for dataset in dataset_list:
         df=pd.DataFrame()
         df['metrics']=['execution_time_mean']
         dataset_path=general_path+dataset+'/'
         for algo in algos_list:
             try:
-                infos_path=dataset_path+'Results/Infos/'+str(algo)
+                infos_path=dataset_path+'Infos/'+str(algo)
                 execution_times=[]
                 infos_files=sorted(os.listdir(infos_path))
 
@@ -198,17 +198,16 @@ def build_exec_time_csv(general_path,dataset_list,algos_list):
             except:
                 metrics_list=[0]
             df[algo]=metrics_list
-        results_path=general_path+'/Results/'
-        if not os.path.exists(results_path):
-            os.makedirs(results_path)
+        if not os.path.exists(write_results_path):
+            os.makedirs(write_results_path)
         dataset_=dataset.replace('/','_')
-        df.to_csv(results_path+ dataset_+'.csv')
+        df.to_csv(write_results_path+ dataset_+'.csv')
     return df
 
-def get_results_fixed_motifs_var_length_by_algo(path,exact_ts_length_list,alpha=0.5):
+def get_results_fixed_motifs_var_length_by_algo(path,exact_ts_length_list):
     results_dict={}
     exact_ts_length=exact_ts_length_list[0]
-    file_name=path+'exact_ts_length_'+str(exact_ts_length)+'_'+str(alpha)+'.csv'
+    file_name=path+'exact_ts_length_'+str(exact_ts_length)+'.csv'
     df=pd.read_csv(file_name,index_col=False)
     columns=[column for column in df if column!='metrics'and column!='Unnamed: 0']
     for column in columns:
@@ -216,7 +215,7 @@ def get_results_fixed_motifs_var_length_by_algo(path,exact_ts_length_list,alpha=
             results_dict[column+'_'+metric]=[df.loc[df['metrics'] == metric, column].iloc[0]]
 
     for exact_ts_length in exact_ts_length_list[1:]:
-        file_name=path+'exact_ts_length_'+str(exact_ts_length)+'_'+str(alpha)+'.csv'
+        file_name=path+'exact_ts_length_'+str(exact_ts_length)+'.csv'
         df=pd.read_csv(file_name,index_col=False)
         for column in columns:
             for metric in df['metrics']:
@@ -241,4 +240,28 @@ def plot_exec_time_fixed_motifs_var_length(results_dict,exact_ts_length_list):
     plt.show()
 
 
+def build_fscore_by_ts(datasets,algos_list):
+    big_df = pd.DataFrame(columns=['file_name']+algos_list)
+    rq1_path=os.getcwd()+'/RQ1/'
+    data_path=os.getcwd()+'/../data/processed_data/'
+    for dataset in datasets:
+        dataset_path=data_path+dataset+'/Data'
+        n_ts=len(os.listdir(dataset_path))
+        name_ex=os.listdir(dataset_path)[0].split('_')[0]
+        results_path=rq1_path+dataset+'/Metrics/'
+        for i in range(n_ts):
+            file_name=name_ex+'_'+str(i) 
+            current_line_df={'file_name':file_name}
+            for algo in algos_list:
+                specific_file=results_path+algo+'/' + algo+'_'+file_name+'.csv'
+                if os.path.exists(specific_file):
+                    df=pd.read_csv(results_path+algo+'/' + algo+'_'+file_name+'.csv')
+                    current_line_df[algo]=round(df.loc[df['metric']=='es-fscore_0.5','score'].iloc[0],2)
+                elif algo=='Motiflets' and os.path.exists(results_path+'Motiflets_numba'+'/' + 'Motiflets_numba_'+file_name+'.csv') :
+                    df=pd.read_csv(results_path+'Motiflets_numba'+'/' + 'Motiflets_numba_'+file_name+'.csv')
+                    current_line_df[algo]=round(df.loc[df['metric']=='es-fscore_0.5','score'].iloc[0],2)
+                else:
+                    current_line_df[algo]=0.00
+            big_df.loc[len(big_df)]=current_line_df
+    big_df.to_csv(rq1_path+'results_by_ts.csv')
 
