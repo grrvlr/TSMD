@@ -11,4 +11,4 @@ Our evaluation is summarized in the plot below.
 
 ## RQ2 Conclusion
 
-Grammarviz and LatentMotif are the most scalable methods in terms of computational efficiency for handling long time series. STOMP, PanMP, MDL-Clust, PEPA, and A-PEPA have acceptable execution times up to 500,000 samples, while the other methods crash or exceed the timeout before that.
+Grammarviz, LatentMotif and Motiflets are the most scalable methods in terms of computational efficiency for handling long time series. STOMP, PanMP, MDL-Clust, PEPA, and A-PEPA have acceptable execution times up to 500,000 samples, while the other methods crash or exceed the timeout before that.

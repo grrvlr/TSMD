@@ -1,2 +1,2 @@
-,metrics,MatrixProfile,PanMatrixProfile,LatentMotif,MDL,Motiflets_numba,BasePersistentPattern,Valmod,Baseline,AdaptativeBasePersistentPattern,Grammarviz
-0,execution_time_mean,423.397,440.347,8.149,1624.378,416.58,1208.121,0,177442.998,1269.739,46.311
+,metrics,MatrixProfile,PanMatrixProfile,LatentMotif,MDL,Motiflets_numba,BasePersistentPattern,Valmod,Baseline,AdaptativeBasePersistentPattern,Grammarviz,LocoMotif
+0,execution_time_mean,423.397,440.347,8.149,1624.378,416.58,1208.121,0,177442.998,1269.739,46.311,0
