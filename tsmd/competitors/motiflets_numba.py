@@ -134,7 +134,7 @@ class Motiflets_numba:
             motif_length = self.motif_length
         else:
             self.motif_length = motif_length
-        self.dists, self.motiflets, self.elbow_points, _ = ml.search_k_motiflets_elbow(
+        self.dists, self.motiflets, self.elbow_points, _, _ = ml.search_k_motiflets_elbow(
         self.k_max,
         self.signal,
         motif_length,

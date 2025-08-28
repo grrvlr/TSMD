@@ -22,7 +22,8 @@ dependencies = [
   "matplotlib>=3.9.0",
   "pandas>=2.0.3",
   "numba>=0.61.0",
-  "joblib>=1.4.2"
+  "joblib>=1.4.2",
+  "motiflets==0.6.5"
 ]
 
 [project.urls]
